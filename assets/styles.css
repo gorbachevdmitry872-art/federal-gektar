@@ -653,6 +653,27 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 
 /* ============================================================
+   MOBILE FIX: scroll offset for sticky header
+   ============================================================ */
+section[id] { scroll-margin-top: 84px; }
+
+/* ============================================================
+   AVAILABILITY STRIP
+   ============================================================ */
+.avail-strip { background: var(--navy); padding-block: 22px; }
+.avail-note {
+  display: flex; gap: 16px; align-items: flex-start;
+}
+.avail-note svg { width: 26px; height: 26px; color: var(--orange); flex: none; margin-top: 2px; }
+.avail-note p { font-size: 15px; color: #cddbe9; line-height: 1.55; }
+.avail-note b { color: #fff; }
+
+/* Premium status / DV card */
+.status--premium { color: var(--orange); background: var(--orange-050); }
+.region-card--premium { border-color: rgba(255,107,0,.3); background: linear-gradient(135deg, #fffbf7, #fff); }
+.region-card--premium:hover { box-shadow: 0 16px 40px -20px rgba(255,107,0,.35); }
+
+/* ============================================================
    NEW VALUE BLOCKS (правки v2)
    ============================================================ */
 /* Hero additions */
@@ -750,7 +771,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   .form-card .grid-2 { grid-template-columns: 1fr; }
   .footer__top { grid-template-columns: 1fr; gap: 28px; }
   .sticky-bar { display: flex; }
-  body { padding-bottom: 76px; }
+  body { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
   .final-cta__btns .btn { min-width: 100%; }
 }
 @media (max-width: 420px) {
