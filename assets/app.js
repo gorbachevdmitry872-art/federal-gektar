@@ -8,8 +8,6 @@
   /* ---- Конфигурация контактов (легко менять при запуске) ---- */
   var CONFIG = {
     waPhone: "79017293919",
-    tgUser: "username",      // заменить на реальный username менеджера/бота
-    tgStart: "hectar_site",  // UTM-метка для t.me/...?start=
   };
 
   /* Предзаполненные сообщения по ТЗ (раздел 15) */
@@ -137,7 +135,6 @@
         var region = form.querySelector('[name="region"]');
         var contact = form.querySelector('[name="contact"]');
         var consent = form.querySelector('[name="consent"]');
-        var channelEl = form.querySelector('[name="channel"]:checked');
         var goalEl = form.querySelector('[name="goal"]:checked');
 
         [ [name, name.value.trim().length >= 2],
@@ -174,7 +171,8 @@
         }
         // Открытие чата не подтверждает отправку. Оставляем ссылку для повторного открытия.
         if (success) {
-          var retry = document.createElement("a");
+          var retry = success.querySelector("a") || document.createElement("a");
+          retry.removeAttribute("data-wa");
           retry.href = link; retry.target = "_blank"; retry.rel = "noopener";
           retry.className = "btn btn--orange"; retry.textContent = "Открыть WhatsApp и отправить";
           success.appendChild(retry);
