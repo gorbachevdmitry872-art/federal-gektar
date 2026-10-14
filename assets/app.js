@@ -26,7 +26,7 @@
     return "https://wa.me/" + CONFIG.waPhone + "?text=" + encodeURIComponent(text);
   }
   function tgLink() {
-    return "https://t.me/" + CONFIG.tgUser + "?start=" + CONFIG.tgStart;
+    return waLink(MESSAGES.finalWa); // Telegram не подключён: используем действующий контакт.
   }
 
   /* Псевдо-аналитика: место для целей Яндекс.Метрики */
@@ -57,9 +57,10 @@
 
     document.querySelectorAll("[data-tg]").forEach(function (el) {
       el.setAttribute("href", tgLink());
+      el.innerHTML = el.innerHTML.replace(/Telegram/g, "WhatsApp");
       el.setAttribute("target", "_blank");
       el.setAttribute("rel", "noopener");
-      el.addEventListener("click", function () { track("tg_click", { src: el.getAttribute("data-tg") }); });
+      el.addEventListener("click", function () { track("wa_click", { src: el.getAttribute("data-tg") }); });
     });
 
     /* ---------- Header shadow on scroll ---------- */
@@ -156,21 +157,13 @@
           return;
         }
 
-        var channel = channelEl ? channelEl.value : "wa";
+        var channel = "wa";
         var goal = goalEl ? goalEl.value : "для себя";
-
-        track("form_submit", { channel: channel, region: region.value.trim(), goal: goal });
-
-        // Открываем мессенджер с предзаполненным текстом
-        var link;
-        if (channel === "tg") {
-          link = tgLink();
-        } else {
-          var text = MESSAGES.tg
-            .replace("{region}", region.value.trim())
-            .replace("{goal}", goal);
-          link = waLink("Здравствуйте! Меня зовут " + name.value.trim() + ". " + text);
-        }
+        track("contact_draft", { channel: channel, region: region.value.trim(), goal: goal });
+        var text = "Здравствуйте! Меня зовут " + name.value.trim() +
+          ". Регион: " + region.value.trim() + ". Цель участка: " + goal +
+          ". Контакт для ответа: " + contact.value.trim() + ".";
+        var link = waLink(text);
 
         // показать экран «спасибо»
         var card = document.getElementById("formBody");
@@ -179,7 +172,13 @@
           card.style.display = "none";
           success.classList.add("show");
         }
-        // открыть чат
+        // Открытие чата не подтверждает отправку. Оставляем ссылку для повторного открытия.
+        if (success) {
+          var retry = document.createElement("a");
+          retry.href = link; retry.target = "_blank"; retry.rel = "noopener";
+          retry.className = "btn btn--orange"; retry.textContent = "Открыть WhatsApp и отправить";
+          success.appendChild(retry);
+        }
         window.open(link, "_blank", "noopener");
       });
     }
@@ -197,7 +196,16 @@
           if (!valid) ok = false;
         });
         if (!ok) return;
-        track("waitlist_submit", { region: wl.querySelector('[name="region"]').value.trim() });
+        track("waitlist_draft", { region: wl.querySelector('[name="region"]').value.trim() });
+        var draft = waLink("Здравствуйте! Хочу узнать о доступности региона. Имя: " +
+          wl.querySelector('[name="name"]').value.trim() + ". Регион: " +
+          wl.querySelector('[name="region"]').value.trim() + ". Контакт: " +
+          wl.querySelector('[name="contact"]').value.trim() + ".");
+        var done = wl.querySelector("[data-wl-done]");
+        var retry = document.createElement("a");
+        retry.href = draft; retry.target = "_blank"; retry.rel = "noopener";
+        retry.textContent = "Открыть WhatsApp и отправить"; done.appendChild(retry);
+        window.open(draft, "_blank", "noopener");
         wl.querySelector("[data-wl-form]").style.display = "none";
         wl.querySelector("[data-wl-done]").style.display = "flex";
       });
@@ -205,3 +213,4 @@
 
   });
 })();
+
